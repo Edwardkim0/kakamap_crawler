@@ -69,7 +69,8 @@ def crawl_data(web_driver_path):
             print('next page error, break out!')
             break
 
-    dataframe = pd.DataFrame(data=df_rows, columns=['매장명', '도로명주소', '지번주소', '평점'])
+    # dataframe = pd.DataFrame(data=df_rows, columns=['매장명', '도로명주소', '지번주소', '평점'])
+    dataframe = pd.DataFrame(data=df_rows)
     save_dataframe(search, dataframe)
     print("저장완료")
 
