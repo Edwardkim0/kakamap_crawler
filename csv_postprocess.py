@@ -12,6 +12,7 @@ def postprocess_df(file_path):
     _dir = os.path.dirname(file_path)
     _path = file_path.split(os.path.sep)[-1]
     new_path = os.path.join(_dir, 'new_' + _path)
+    df = df.drop_duplicates(['mac_name']).reset_index(drop=True)
     df.to_csv(new_path, sep='\t')
 
 
