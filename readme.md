@@ -18,6 +18,10 @@ longitude : 위도
 터미널에 python kakaomap_crawl.py 를 입력한다.
 input 에 원하는 검색어를 넣는다 ex) 맥드라이브
 
+### kakaomap_review_crawl.py
+카카오맵 검색 결과를 크롤링하기 위한 코드  
+위 코드에서 리뷰 평점, 작성 시간, 리뷰 텍스트가 추가된다.
+
 ### address_convert.py  
 도로명/지번 주소를 경도/위도 좌표로 변환하기 위한 코드  
 

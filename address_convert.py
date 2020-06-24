@@ -44,11 +44,11 @@ def dataframe_loc_convert(df, address_column):
         locs.append((lat, lng))
 
     if "Unnamed: 0" in df.columns:
-        df = df.drop("Unnamed: 0")
+        df = df.drop("Unnamed: 0", axis=1)
     df.to_csv(save_path, sep='\t')
-
+    return save_path
 
 if __name__ == '__main__':
-    file_path = 'data/2020-06-23_12_13_맥드라이브.csv'
+    file_path = 'data/2020-06-24_15_25_맥드라이브.csv'
     dataframe_loc_convert(file_path, 'address')
     postprocess_df(file_path)

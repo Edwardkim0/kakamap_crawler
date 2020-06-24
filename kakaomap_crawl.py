@@ -8,6 +8,8 @@ from itertools import cycle
 import pandas as pd
 import os
 from datetime import datetime
+from address_convert import dataframe_loc_convert
+from csv_postprocess import postprocess_df
 
 
 def save_dataframe(search_name, df):
@@ -16,10 +18,11 @@ def save_dataframe(search_name, df):
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, now.strftime("%Y-%m-%d_%H_%M_") + search_name + '.csv')
     df.to_csv(save_path, sep='\t')
+    return save_path
+
 
 def crawl_data():
     df_rows = []
-    list_row_nums = 16
     search = input("검색어를 입력하세요 : ")
     driver = webdriver.Chrome()
     base_url = 'https://map.kakao.com'
@@ -34,45 +37,58 @@ def crawl_data():
     search_more = driver.find_element_by_xpath('//*[@id="info.search.place.more"]')
     search_more.send_keys(Keys.ENTER)
     sleep(1)
+    driver.find_element_by_xpath(f'//*[@id="info.search.page.no1"]').send_keys(Keys.ENTER)
+    sleep(1)
     total_row_nums = int(driver.find_element_by_xpath('//*[@id="info.search.place.cnt"]').text)
     for page in cycle(['no2', 'no3', 'no4', 'no5', 'next']):
-        for i in range(1, list_row_nums):
-            try:
-                row = {
-                    'mac_name': driver.find_element_by_xpath(
-                        f'//*[@id="info.search.place.list"]/li[{i}]/div[3]/strong/a[2]').text,
-                    'address': driver.find_element_by_xpath(
-                        f'//*[@id="info.search.place.list"]/li[{i}]/div[5]/div[2]/p[1]').text,
-                    'address2': driver.find_element_by_xpath(
-                        f'//*[@id="info.search.place.list"]/li[{i}]/div[5]/div[2]/p[2]').text,
-                    'score': driver.find_element_by_xpath(
-                        f'//*[@id="info.search.place.list"]/li[{i}]/div[4]/span[1]/em').text
-                }
-                df_rows.append(row)
-            except NoSuchElementException as e:
-                print(f'{i} th list {e}')
-                continue
-            except StaleElementReferenceException as e:
-                print(f'{i} th list {e}')
-                break
+        try:
+            mac_names = driver.find_elements_by_xpath(
+                f'//*[@id="info.search.place.list"]/li/div[3]/strong/a[2]')
+            addresses = driver.find_elements_by_xpath(
+                f'//*[@id="info.search.place.list"]/li/div[5]/div[2]/p[1]')
+            addresses2 = driver.find_elements_by_xpath(
+                f'//*[@id="info.search.place.list"]/li/div[5]/div[2]/p[2]')
+            scores = driver.find_elements_by_xpath(
+                f'//*[@id="info.search.place.list"]/li/div[4]/span[1]/em')
+            for m, a1, a2, s in zip(mac_names, addresses, addresses2, scores):
+                try:
+                    row = {
+                        'mac_name': m.text,
+                        'address': a1.text,
+                        'address2': a2.text,
+                        'score': s.text
+                    }
+                    df_rows.append(row)
+                    sleep(0.1)
+                except Exception as e:
+                    print(e)
+        except NoSuchElementException as e:
+            print(f'{e}')
+            continue
+        except StaleElementReferenceException as e:
+            print(f'{e}')
+            continue
         try:
             next_page = driver.find_element_by_xpath(f'//*[@id="info.search.page.{page}"]')
             if total_row_nums <= len(df_rows):
                 break
             elif next_page.is_enabled():
                 next_page.send_keys(Keys.ENTER)
+                sleep(1)
             else:
                 break
         except Exception as e:
             print('next page error, break out!')
             break
 
-    # dataframe = pd.DataFrame(data=df_rows, columns=['매장명', '도로명주소', '지번주소', '평점'])
     dataframe = pd.DataFrame(data=df_rows)
-    save_dataframe(search, dataframe)
+    save_path = save_dataframe(search, dataframe)
     print("저장완료")
+    return save_path
 
 
 if __name__ == '__main__':
     freeze_support()
-    crawl_data()
+    save_path = crawl_data()
+    save_path = dataframe_loc_convert(save_path, 'address')
+    postprocess_df(save_path)

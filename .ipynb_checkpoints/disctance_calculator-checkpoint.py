@@ -30,7 +30,7 @@ def find_mindist_starbucks(each_mac_df):
 
 
 def main():
-    loc_info = pd.read_csv('data/ST_MAC2_DT.csv', sep='\t')
+    loc_info = pd.read_excel('/Users/dhkim/PycharmProjects/kakomap_crwal/data/ST_MAC_DT.xlsx', sep='\t')
     loc_info_mac = loc_info[loc_info.SORT == '맥도날드']
     loc_info_star = loc_info[loc_info.SORT == '스타벅스']
     loc_info_star = loc_info_star.reset_index().drop('index', axis=1)
@@ -41,7 +41,3 @@ def main():
     mac_star_distance = pd.DataFrame(rows)
     mac_star_distance2 = mac_star_distance.groupby(['mac_name']).apply(find_mindist_starbucks)
     mac_star_distance3 = mac_star_distance2.reset_index()
-    mac_star_distance3.to_csv('data/mac_star_distance.csv', sep='\t')
-
-if __name__ == '__main__':
-    main()
