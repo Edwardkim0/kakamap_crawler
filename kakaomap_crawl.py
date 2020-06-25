@@ -6,19 +6,9 @@ from selenium.common.exceptions import StaleElementReferenceException, NoSuchEle
 from selenium.webdriver.common.keys import Keys
 from itertools import cycle
 import pandas as pd
-import os
-from datetime import datetime
-from address_convert import dataframe_loc_convert
-from csv_postprocess import postprocess_df
-
-
-def save_dataframe(search_name, df):
-    now = datetime.now()
-    save_dir = 'data'
-    os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, now.strftime("%Y-%m-%d_%H_%M_") + search_name + '.csv')
-    df.to_csv(save_path, sep='\t')
-    return save_path
+from utils.address_convert import dataframe_loc_convert
+from utils.csv_postprocess import postprocess_df
+from utils.data_process import save_dataframe
 
 
 def crawl_data():

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/kakomap_crwal.iml" filepath="$PROJECT_DIR$/.idea/kakomap_crwal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/map_crwaler.iml" filepath="$PROJECT_DIR$/.idea/map_crwaler.iml" />
     </modules>
   </component>
 </project>

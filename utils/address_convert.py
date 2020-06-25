@@ -1,6 +1,5 @@
 import requests
-import pprint
-from csv_postprocess  import postprocess_df
+from utils.csv_postprocess import postprocess_df
 
 def find_lat_lng(location):
     # 요청 주소(구글맵)
