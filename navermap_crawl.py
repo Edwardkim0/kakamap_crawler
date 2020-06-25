@@ -53,8 +53,8 @@ def crawl_data():
     click_nolink_for_scrollDown(driver, SCROLL_TIME)
 
     try:
-        loc_names = driver.find_elements_by_xpath(
-            '//*[@id="_list_scroll_container"]/div/div/div[1]/ul/li/div[1]/a/div[1]/div/span')
+        # loc_names = driver.find_elements_by_xpath(
+        #     '//*[@id="_list_scroll_container"]/div/div/div[1]/ul/li/div[1]/a/div[1]/div/span')
         addresses = driver.find_elements_by_xpath(
             '//*[@id="_list_scroll_container"]/div/div/div[1]/ul/li/div[1]/a/div[2]/span[1]')
         num_reviews = driver.find_elements_by_xpath(
@@ -62,10 +62,10 @@ def crawl_data():
         links = driver.find_elements_by_xpath(
             '//*[@id="_list_scroll_container"]/div/div/div[1]/ul/li/div[1]/a')
 
-        for loc, add, num, link in zip(loc_names, addresses, num_reviews, links):
+        for loc, add, num, link in zip(addresses, num_reviews, links):
             try:
                 row = {
-                    'loc_name': loc.text,
+                    # 'loc_name': loc.text,
                     'address': add.text,
                     'num_review': num.text,
                     'link': link.get_attribute('href')
@@ -101,21 +101,31 @@ def review_crawl(crawled_data):
         row['dates'] = []
         driver.get(row['link'])
         sleep(1)
-        click_nolink_for_scrollDown(driver, 4)
+
+        row['loc_name'] = driver.find_element_by_xpath('//*[@id="_title"]/span[1]').text
+        print(row['loc_name'])
         sleep(1)
+
+        # more_receipt_x_path = '//*[@id="app-root"]/div/div[2]/div[4]/div/div[4]/div[2]/a'
+        while 'receipt' not in driver.current_url:
+            # click_nolink_for_scrollDown(driver, 4)
+            # sleep(1)
+            try:
+                receipt_review = driver.find_element_by_xpath('//*[@id="app-root"]/div/div[2]/div[3]/div/div/div/a[3]/span')
+                receipt_review.click()
+            except Exception as e:
+                print(f'{e} ')
+                driver.get(row['link'])
+                # more_receipt_x_path = '/html/body/div[2]/div/div[2]/div[4]/div/div[4]/div[2]/a'
+                sleep(1)
+            sleep(1)
         try:
-            receit_review = driver.find_element_by_xpath('//*[@id="app-root"]/div/div[2]/div[4]/div/div[4]/div[2]/a')
-            receit_review.click()
-        except Exception as e:
-            print(f'{e} ??')
-        sleep(1)
-        try:
-            more_receit = driver.find_element_by_xpath('//*[@id="app-root"]/div/div[2]/div[4]/div[2]/div[2]/div[2]/a')
-            while more_receit.is_enabled():
-                more_receit.click()
+            more_receipt = driver.find_element_by_xpath('//*[@id="app-root"]/div/div[2]/div[4]/div[2]/div[2]/div[2]/a')
+            while more_receipt.is_enabled():
+                more_receipt.click()
                 sleep(0.3)
-        except Exception as StaleElementReferenceException:
-            print(f'{e} ??')
+        except StaleElementReferenceException as e:
+            print(f'{e}, it`s ok .. go to next link')
 
         try:
             review_elems = driver.find_elements_by_xpath(
@@ -139,8 +149,10 @@ def review_crawl(crawled_data):
 
 
 if __name__ == '__main__':
-    freeze_support()
-    save_path = crawl_data()
+    # freeze_support()
+    # save_path = crawl_data()
     # save_path = dataframe_loc_convert(save_path, 'address')
-    postprocess_df(save_path)
+
+    save_path = 'data/2020-06-25_16_23_스타벅스dt.csv'
+    save_path = postprocess_df(save_path, 'address')
     review_crawl(save_path)
