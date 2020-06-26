@@ -30,7 +30,7 @@ def find_mindist_starbucks(each_mac_df):
 
 
 def main():
-    loc_info = pd.read_csv('../data/ST_MAC2_DT.csv', sep='\t')
+    loc_info = pd.read_csv('../data/mac/ST_MAC2_DT.csv', sep='\t')
     loc_info_mac = loc_info[loc_info.SORT == '맥도날드']
     loc_info_star = loc_info[loc_info.SORT == '스타벅스']
     loc_info_star = loc_info_star.reset_index().drop('index', axis=1)

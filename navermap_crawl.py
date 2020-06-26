@@ -102,7 +102,7 @@ def review_crawl(crawled_data, basis_column='loc_name'):
         driver.get(row['link'])
         sleep(1)
 
-        row['loc_name'] = driver.find_element_by_xpath('//*[@id="_title"]/span[1]').text
+        row['loc_name'] = driver.find_element_by_class_name('_3XamX').text
         print(row['loc_name'])
         sleep(1)
         while 'receipt' not in driver.current_url:
@@ -120,12 +120,12 @@ def review_crawl(crawled_data, basis_column='loc_name'):
             print(f'receipt_num : {row["receipt_num"]}')
         except Exception as e:
             print('receipt_num error', e)
-
+        sleep(2)
         row['reviews'] = []
         row['scores'] = []
         row['dates'] = []
         try:
-            more_receipt = driver.find_element_by_xpath('//*[@id="app-root"]/div/div[2]/div[4]/div[2]/div[2]/div[2]/a')
+            more_receipt = driver.find_element_by_class_name('_3iTUo')
             while more_receipt.is_enabled():
                 more_receipt.click()
                 sleep(0.4)
@@ -135,8 +135,7 @@ def review_crawl(crawled_data, basis_column='loc_name'):
             print(f'{e}, may be no review... it`s ok .. go to next link')
 
         try:
-            review_elems = driver.find_elements_by_xpath(
-                '//*[@id="app-root"]/div/div[2]/div[4]/div[2]/div[2]/div/ul/li/div/div[2]/a/span')
+            review_elems = driver.find_elements_by_class_name('WoYOw')
             review_scores = driver.find_elements_by_class_name('_3qIdi')
             review_infos = driver.find_elements_by_class_name('_2wZjV')
             review_dates = [x for i, x in enumerate(review_infos) if i % 3 == 1]
@@ -168,6 +167,7 @@ if __name__ == '__main__':
     # save_path = crawl_data()
     # save_path = dataframe_loc_convert(save_path, 'address')
 
-    save_path = 'data/2020-06-25_16_23_스타벅스dt.csv'
-    save_path = postprocess_df(save_path, basis_name='address')
+    # save_path = 'data/2020-06-25_16_23_스타벅스dt.csv'
+    save_path = 'recrwal_select_data.csv'
+    # save_path = postprocess_df(save_path, basis_name='address')
     review_crawl(save_path, basis_column='address')
