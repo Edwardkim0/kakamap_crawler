@@ -1,5 +1,7 @@
 import requests
 from utils.csv_postprocess import postprocess_df
+import time
+
 
 def find_lat_lng(location):
     # 요청 주소(구글맵)
@@ -17,10 +19,11 @@ def find_lat_lng(location):
         # lat, lon 추출
         lat = data['results'][0]['geometry']['location']['lat']
         lng = data['results'][0]['geometry']['location']['lng']
-    except:
-        print('time exceed')
-        find_lat_lng(location)
-    #         lat, lng = 0, 0
+    except Exception as e:
+        print(f'{e} : {location} failed to find coordinates')
+        # time.sleep(1)
+        # lat, lng = find_lat_lng(location)
+        lat, lng = 0, 0
     return lat, lng
 
 def dataframe_loc_convert(df, address_column):
@@ -48,6 +51,13 @@ def dataframe_loc_convert(df, address_column):
     return save_path
 
 if __name__ == '__main__':
-    file_path = 'data/2020-06-24_15_25_맥드라이브.csv'
-    dataframe_loc_convert(file_path, 'address')
-    postprocess_df(file_path)
+    # file_path = 'data/2020-06-24_15_25_맥드라이브.csv'
+    import os
+    os.chdir('..')
+    # file_path = 'data/starbucks/starbucks_review_groupby_200626.csv'
+    # dataframe_loc_convert(file_path, 'address')
+    # postprocess_df(file_path, basis_name='address')
+
+    file_path = '/Users/dhkim/PycharmProjects/company_list/big_company_address_with_factory.csv'
+    dataframe_loc_convert(file_path, '주소')
+    postprocess_df(file_path, basis_name='주소')
