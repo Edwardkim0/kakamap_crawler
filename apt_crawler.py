@@ -39,8 +39,9 @@ def crawl_data(save_path):
     base_url = 'http://www.koreatriptips.com/tourist-attractions.html'
     driver.get(base_url)
     sleep(1.5)
+    SCROLL_TIME = 10
 
-    for page in range(2, 800):
+    for page in range(2, 1000):
         try:
             body = driver.find_element_by_xpath('/html/body')
             body.send_keys(Keys.END)
@@ -56,6 +57,7 @@ def crawl_data(save_path):
                         'num_review': int(num.text.split(' ')[0]) if num.text.split(' ')[0]!='' else 0
                     }
                     df_rows.append(row)
+                    sleep(0.1)
                 except Exception as e:
                     print(e)
         except NoSuchElementException as e:
@@ -75,6 +77,73 @@ def crawl_data(save_path):
     save_path = save_dataframe(save_path, dataframe)
     print("저장완료")
     return save_path
+
+
+def load_starbucks_name():
+    file_path = '/Users/dhkim/PycharmProjects/kakomap_crwal/data/starbucks/starbucks_review_groupby_200626.csv'
+    starbucks_data = pd.read_csv(file_path, sep='\t')
+    starbucks_names = starbucks_data['loc_name'].values
+
+    navermap_url = 'https://map.naver.com/v5/?c=14129714.3131993,4512237.8197019,15,0,0,0,dh'
+    driver = webdriver.Chrome()
+
+    # search_window = driver.find_element_by_xpath('//*[@id="container"]/div[1]/app-base/search-box/div/div[2]/span')
+    # search_window = driver.find_element_by_xpath('//*[@id="input_search1593739639254"]')
+    df_rows = []
+    for name in starbucks_names:
+        driver.get(navermap_url)
+        sleep(3)
+        # driver.execute_script("arguments[0].setAttribute('text', '" + name + "')", search_window)
+        ele = driver.find_element_by_class_name('btn_search')
+        sleep(0.1)
+        driver.execute_script("arguments[0].click();", ele)
+        sleep(0.1)
+        search_window = driver.find_element_by_class_name('input_box').find_element_by_class_name('input_search')
+        sleep(0.5)
+        search_window.send_keys(name)
+        sleep(0.2)
+        search_window.send_keys(Keys.ENTER)
+        sleep(1)
+        searched_window = driver.find_element_by_class_name('input_box').find_element_by_class_name('input_search')
+        apt_search = ' 주변 아파트'
+        searched_window.send_keys(apt_search)
+        sleep(0.2)
+        searched_window.send_keys(Keys.ENTER)
+        sleep(3)
+        search_lists = driver.find_elements_by_class_name('link_search')
+        if len(search_lists):
+            search_lists[0].click()
+            sleep(2)
+            infos = driver.find_elements_by_class_name('estate_text_box')
+            apt_name = driver.find_element_by_class_name('summary_title')
+            try:
+                date = infos[0].text
+                num = infos[3].text.split(' ')[0]
+            except Exception as e:
+                print(e)
+                date = ''
+                num = ''
+            row = {
+                '지점명' : name,
+                '아파트명' : apt_name.text,
+                '주소' : driver.find_element_by_class_name('end_title').text,
+                '준공년월' : date,
+                '세대' : num
+            }
+            df_rows.append(row)
+
+        dataframe = pd.DataFrame(data=df_rows)
+        save_path = save_dataframe('apt_review', dataframe)
+        print(f"{save_path} 저장완료")
+
+
+    dataframe = pd.DataFrame(data=df_rows)
+    save_path = save_dataframe('apt_review', dataframe)
+    print(f"{save_path} 저장완료")
+    return save_path
+
+
+
 
 
 def review_crawl(crawled_data, basis_column='loc_name'):
@@ -159,7 +228,6 @@ if __name__ == '__main__':
     # save_path = dataframe_loc_convert(save_path, 'address')
 
     # save_path = 'data/2020-06-25_16_23_스타벅스dt.csv'
-    save_path = 'travel_crawl.csv'
-    crawl_data(save_path)
+    load_starbucks_name()
     # save_path = postprocess_df(save_path, basis_name='address')
     # review_crawl(save_path, basis_column='address')

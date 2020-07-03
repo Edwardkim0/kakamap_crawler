@@ -59,5 +59,11 @@ if __name__ == '__main__':
     # postprocess_df(file_path, basis_name='address')
 
     file_path = '/Users/dhkim/PycharmProjects/company_list/big_company_address_with_factory.csv'
-    dataframe_loc_convert(file_path, '주소')
-    postprocess_df(file_path, basis_name='주소')
+    file_path = '/Users/dhkim/PycharmProjects/kakomap_crwal/data/2020-07-02_18_46_travel_crawl.csv'
+    file_path = '../company_list/starbucks_btw_apt_info.csv'
+    file_path = '/Users/dhkim/PycharmProjects/kakomap_crwal/data/2020-07-03_11_58_apt_review.csv'
+    # file_path = './data/starbucks/new_starbucks_review_groupby_200626.csv'
+    # dataframe_loc_convert(file_path, '주')
+    # postprocess_df(file_path, basis_name='지점명')
+    # print(find_lat_lng('충청남도 공주시 장기면 제천리 10'))
+    print(find_lat_lng('세종특별자치시 한누리대로 321'))
