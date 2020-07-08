@@ -37,8 +37,7 @@ def get_distances_with_df(df1, df2, df1_basis, df2_basis, df1_another: list = No
     return rows
 
 
-def find_min_dist_starbucks(groupped_df, basis_name='star_name', min_numbers=2,
-                            target_keep_col=None):
+def find_min_dist_starbucks(groupped_df, min_numbers=2, target_keep_col=None):
     new_df = {}
     groupped_df = groupped_df.sort_values(by='distance').reset_index(drop=True)
     new_df['distance'] = groupped_df.loc[:min_numbers]['distance']
@@ -90,10 +89,10 @@ def distance_calculate(source_df, target_df, save_name, distance_number=1):
     target_basis = target_df.columns[0]
     source_keep_col = ['address']
     target_keep_col = list(set(target_df.columns) - set(['latitude', 'longitude', target_basis]))
-    rows = get_distances_with_df(df1=source_df, df2=target_df, df1_basis=source_basis, df2_basis=target_basis,
-                                 df1_another=source_keep_col, df2_another=target_keep_col)
-    src_tar_distance = pd.DataFrame(rows)
-    src_tar_distance.to_csv(f'data/{save_name}_distance_raw.csv', sep='\t')
+    # rows = get_distances_with_df(df1=source_df, df2=target_df, df1_basis=source_basis, df2_basis=target_basis,
+    #                              df1_another=source_keep_col, df2_another=target_keep_col)
+    # src_tar_distance = pd.DataFrame(rows)
+    # src_tar_distance.to_csv(f'data/{save_name}_distance_raw.csv', sep='\t')
 
     src_tar_distance = pd.read_csv('data/Starbucks_btw_Tourist_distance_raw.csv', sep='\t')
     src_tar_distance = src_tar_distance.drop('Unnamed: 0', axis=1)
@@ -101,17 +100,17 @@ def distance_calculate(source_df, target_df, save_name, distance_number=1):
     target_cols = target_keep_col + [target_basis]
 
     src_tar_distance2 = src_tar_distance.groupby(source_cols).apply(
-        lambda x: find_min_dist_starbucks(x, source_basis, distance_number, target_cols))
+        lambda x: find_min_dist_starbucks(x, distance_number, target_cols))
+    src_tar_distance2 = src_tar_distance2.reset_index()
     if distance_number > 1:
         src_tar_distance2 = column_list_to_multiple_rows(src_tar_distance2, source_cols, ['distance'] + target_cols)
-    src_tar_distance2 = src_tar_distance2.reset_index()
     src_tar_distance2.to_csv(f'data/{save_name}_distance.csv', sep='\t')
 
 
 def main_startbucks_tourist():
     travel_data_path = 'data/new_2020-07-02_18_46_travel_crawl.csv'
     travel_data = read_csv(travel_data_path)
-    starbucks_data_path = '../company_list/starbucksDT_location_info_20200703.csv'
+    starbucks_data_path = '../company_list/starbucksDT_location_info_20200707.csv'
     starbucks_data = read_csv(starbucks_data_path)
     distance_calculate(starbucks_data, travel_data, 'Starbucks_btw_Tourist', distance_number=2)
 
@@ -123,9 +122,18 @@ def main_startbucks_apt():
     starbucks_data = pd.read_csv(starbucks_data_path, sep='\t')
     distance_calculate(starbucks_data, apt_data, 'Starbucks_btw_Apt', distance_number=1)
 
+def main_startbucks_mac():
+    mac_data_path = '/Users/dhkim/PycharmProjects/starbucksDT/new2_2020-06-24_16_59_맥드라이브.csv'
+    mac_data = pd.read_csv(mac_data_path, sep='\t', index_col=0)
+    mac_data = mac_data[['mac_name', 'address', 'latitude', 'longitude']]
+    starbucks_data_path = '../company_list/starbucksDT_location_info_20200707.csv'
+    starbucks_data = pd.read_csv(starbucks_data_path, sep='\t', index_col=0)
+    distance_calculate(starbucks_data, mac_data, 'Starbucks_btw_Mac', distance_number=1)
+
 
 if __name__ == '__main__':
     import os
 
     os.chdir('..')
     main_startbucks_tourist()
+    # main_startbucks_mac()
